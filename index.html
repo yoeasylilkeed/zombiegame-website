@@ -302,5 +302,24 @@ setInterval(()=>{
 }, 200);
 
 </script>
+<div id="joyLeft" style="position:fixed;left:40px;bottom:60px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);"></div>
+<div id="joyRight" style="position:fixed;right:40px;bottom:60px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);"></div>
+<script>
+// --- Mobile Joystick Controls ---
+let joyL={active:false,x:0,y:0,vx:0,vy:0}, joyR={active:false,x:0,y:0,vx:0,vy:0};
+function setupJoy(id,joy){ const el=document.getElementById(id);
+  el.addEventListener('touchstart',e=>{joy.active=true;const t=e.touches[0];joy.x=t.clientX;joy.y=t.clientY;});
+  el.addEventListener('touchmove',e=>{if(!joy.active)return;const t=e.touches[0];let dx=t.clientX-joy.x, dy=t.clientY-joy.y;const d=Math.hypot(dx,dy);if(d>40){dx*=40/d;dy*=40/d;}joy.vx=dx/40;joy.vy=dy/40;});
+  el.addEventListener('touchend',()=>{joy.active=false;joy.vx=0;joy.vy=0;});
+}
+setupJoy('joyLeft',joyL); setupJoy('joyRight',joyR);
+// integrate movement + aiming
+const oldUpdate=update;
+update=function(){
+  if(joyL.active){ player.x+=joyL.vx*player.speed; player.y+=joyL.vy*player.speed; }
+  if(joyR.active){ mouse.x=player.x+joyR.vx*200; mouse.y=player.y+joyR.vy*200; mouse.down=true; }
+  oldUpdate();
+};
+</script>
 </body>
 </html>
